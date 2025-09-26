@@ -17,27 +17,26 @@ export const FinancialRecordList = () => {
 
   const handleDelete = (id?: string) => {
     if (!id) return;
-
-    // Ask for confirmation before proceeding with deletion
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this record?"
     );
-
-    if (confirmDelete) {
-      deleteRecord(id);
-    }
+    if (confirmDelete) deleteRecord(id);
   };
 
   return (
     <>
-      {/* Modal for Editing Record */}
+      {/* Edit Modal */}
       {recordToEdit && (
-        <div className="fixed inset-0 w-full min-h-screen flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg transform transition-all duration-300 ease-in-out scale-100 hover:scale-105">
-            <FinancialRecordForm record={recordToEdit} method="put" />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-fadeIn scale-100 transition-transform duration-300">
+            <FinancialRecordForm
+              record={recordToEdit}
+              method="put"
+              setIsEditing={setRecordToEdit}
+            />
             <button
               onClick={() => setRecordToEdit(null)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800 focus:outline-none"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 focus:outline-none"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -58,43 +57,54 @@ export const FinancialRecordList = () => {
         </div>
       )}
 
-      {/* Main Records List */}
-      <div className="p-8 bg-gray-50 rounded-lg shadow-lg w-full max-w-screen-xl mx-auto">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-8 text-center">
-          Financial Records
-        </h2>
-        <p>Total : {totalAmount}</p>
+      {/* Records Dashboard */}
+      <div className="container mx-auto p-8">
+        {/* Total Amount Card */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl shadow-lg p-6 mb-8 text-center">
+          <h2 className="text-xl font-semibold mb-2">Total Balance</h2>
+          <p className="text-3xl font-bold">${totalAmount.toFixed(2)}</p>
+        </div>
+
+        {/* Records Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {records.map((rec) => (
             <div
               key={rec._id}
-              className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105"
+              className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transform hover:scale-[1.03] transition-all duration-300"
             >
               <h3 className="text-xl font-semibold mb-3 text-gray-800">
                 {rec.description}
               </h3>
-              <p className="text-md mb-2 text-gray-600">
+              <p className="text-gray-500 mb-1">
                 Date: {new Date(rec.date).toLocaleDateString()}
               </p>
-              <p className="text-md mb-2 text-gray-600">
-                Amount: ${rec.amount.toFixed(2)}
+              <p className="text-gray-500 mb-1">
+                Amount:{" "}
+                <span
+                  className={
+                    rec.amount >= 0
+                      ? "text-green-600 font-bold"
+                      : "text-red-600 font-bold"
+                  }
+                >
+                  ${rec.amount.toFixed(2)}
+                </span>
               </p>
-              <p className="text-md mb-2 text-gray-600">
-                Category: {rec.category}
-              </p>
-              <p className="text-md mb-4 text-gray-600">
+              <p className="text-gray-500 mb-1">Category: {rec.category}</p>
+              <p className="text-gray-500 mb-4">
                 Payment Method: {rec.paymentMethod}
               </p>
-              <div className="flex justify-between gap-4">
+
+              <div className="flex justify-between gap-4 mt-4">
                 <button
                   onClick={() => setRecordToEdit(rec)}
-                  className="bg-blue-600 text-white p-2 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transform transition-all duration-200"
+                  className="flex-1 bg-blue-600 text-white p-2 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(rec._id)}
-                  className="bg-red-600 text-white p-2 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transform transition-all duration-200"
+                  className="flex-1 bg-red-600 text-white p-2 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors"
                 >
                   Delete
                 </button>
@@ -102,6 +112,13 @@ export const FinancialRecordList = () => {
             </div>
           ))}
         </div>
+
+        {/* Empty state */}
+        {records.length === 0 && (
+          <div className="mt-12 text-center text-gray-400">
+            <p>No records yet. Start by adding a new financial record!</p>
+          </div>
+        )}
       </div>
     </>
   );
