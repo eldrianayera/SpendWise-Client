@@ -42,7 +42,9 @@ export const FinancialRecordsProvider = ({
 
       try {
         const res = await fetch(
-          `http://localhost:3001/financial-records/getAllByUserId/${userId}`,
+          `${
+            import.meta.env.VITE_API_BASE
+          }/financial-records/getAllByUserId/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -65,13 +67,16 @@ export const FinancialRecordsProvider = ({
   }, [user]);
 
   const addRecord = async (record: FinancialRecord) => {
-    const response = await fetch("http://localhost:3001/financial-records", {
-      method: "POST",
-      body: JSON.stringify(record),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE}/financial-records`,
+      {
+        method: "POST",
+        body: JSON.stringify(record),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     try {
       if (response.ok) {
@@ -89,7 +94,7 @@ export const FinancialRecordsProvider = ({
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/financial-records/${id}`,
+        `${import.meta.env.VITE_API_BASE}/financial-records/${id}`,
         {
           method: "PUT",
           headers: {
@@ -114,7 +119,7 @@ export const FinancialRecordsProvider = ({
   const deleteRecord = async (id: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/financial-records/${id}`,
+        `${import.meta.env.VITE_API_BASE}/financial-records/${id}`,
         {
           method: "DELETE",
           headers: {
