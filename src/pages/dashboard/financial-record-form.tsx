@@ -1,31 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
-import { useFinancialRecords } from "../../contexts/financial-record-form";
+import {
+  useFinancialRecords,
+  type FinancialRecord,
+} from "../../contexts/financial-record-form";
 
-export const FinancialRecordForm = () => {
+interface Props {
+  record?: FinancialRecord;
+  method: "post" | "put";
+}
+
+export const FinancialRecordForm = ({ record, method }: Props) => {
   const [description, setDescription] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const { addRecord } = useFinancialRecords();
+  const [isExpense, setIsExpense] = useState<boolean>(true);
+  const { addRecord, updateRecord } = useFinancialRecords();
 
   const { user } = useUser();
 
+  useEffect(() => {
+    if (record) {
+      setDescription(record.description);
+      setCategory(record.category);
+      setPaymentMethod(record.paymentMethod);
+      setAmount(record.amount.toString());
+    }
+  }, [record]);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log(1111111);
 
-    const newRecord = {
-      userId: user?.id ?? "",
-      date: new Date(),
-      description: description,
-      amount: parseFloat(amount),
-      category: category,
-      paymentMethod: paymentMethod,
-    };
+    if (method === "post") {
+      const newRecord = {
+        userId: user?.id ?? "",
+        date: new Date(),
+        description: description,
+        amount: parseFloat(amount),
+        category: category,
+        paymentMethod: paymentMethod,
+      };
 
-    console.log(newRecord);
+      addRecord(newRecord);
+    } else if (method === "put") {
+      if (!record?._id) {
+        return;
+      }
+      const newRecord = {
+        description: description,
+        amount: parseFloat(amount),
+        category: category,
+        paymentMethod: paymentMethod,
+      };
 
-    addRecord(newRecord);
+      updateRecord(record._id, newRecord);
+    }
 
     setDescription("");
     setAmount("");
@@ -34,39 +65,58 @@ export const FinancialRecordForm = () => {
   };
 
   return (
-    <div className="form-container">
+    <div className="max-w-lg mx-auto p-8 bg-white shadow-lg rounded-lg">
       <form onSubmit={handleSubmit}>
-        <div className="form-field">
-          <label htmlFor="description">Description:</label>
+        <div className="mb-6">
+          <label
+            htmlFor="description"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
+            Description:
+          </label>
           <input
             type="text"
             id="description"
             name="description"
-            className="input"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            required
           />
         </div>
-        <div className="form-field">
-          <label htmlFor="amount">Amount:</label>
+
+        <div className="mb-6">
+          <label
+            htmlFor="amount"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
+            Amount:
+          </label>
           <input
             type="number"
             id="amount"
             name="amount"
-            className="input"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            required
           />
         </div>
-        <div className="form-field">
-          <label htmlFor="category">Category:</label>
+
+        <div className="mb-6">
+          <label
+            htmlFor="category"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
+            Category:
+          </label>
           <select
-            required
             id="category"
             name="category"
-            className="input"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            required
           >
             <option value="">Select a Category</option>
             <option value="Food">Food</option>
@@ -77,15 +127,21 @@ export const FinancialRecordForm = () => {
             <option value="Other">Other</option>
           </select>
         </div>
-        <div className="form-field">
-          <label htmlFor="paymentMethod">Payment Method:</label>
+
+        <div className="mb-6">
+          <label
+            htmlFor="paymentMethod"
+            className="block text-lg font-semibold text-gray-700 mb-2"
+          >
+            Payment Method:
+          </label>
           <select
-            required
-            name="paymentMethod"
             id="paymentMethod"
-            className="input"
-            onChange={(e) => setPaymentMethod(e.target.value)}
+            name="paymentMethod"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            required
           >
             <option value="">Select a Payment Method</option>
             <option value="Credit Card">Credit Card</option>
@@ -93,7 +149,11 @@ export const FinancialRecordForm = () => {
             <option value="Bank Transfer">Bank Transfer</option>
           </select>
         </div>
-        <button type="submit" className="button">
+
+        <button
+          type="submit"
+          className="w-full p-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
           Add Record
         </button>
       </form>

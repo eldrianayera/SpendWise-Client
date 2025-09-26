@@ -6,9 +6,18 @@ export const Dashboard = () => {
   const { user } = useUser();
 
   return (
-    <div>
-      <h1>Welcome {user?.firstName}! Here are your Finances:</h1>
-      <FinancialRecordForm />
+    <div className="container mx-auto p-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        Welcome, <span className="text-blue-600">{user?.firstName}</span>! Here
+        are your Finances:
+      </h1>
+
+      {/* Financial Record Form */}
+      <div className="mb-8">
+        <FinancialRecordForm method="post" />
+      </div>
+
+      {/* Financial Record List */}
       <FinancialRecordList />
     </div>
   );
